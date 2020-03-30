@@ -1,0 +1,41 @@
+{
+  "appName": "speed",
+  "appEnv": "prod",
+  "appKey": "",
+  "appDebug": true,
+  "AppTimezone": "Asia/Shanghai",
+  "db": {
+    "dialect": "mysql",
+    "mysql": {
+      "default": {
+        "host": "127.0.0.1",
+        "port": 3306,
+        "databaseName": "wechat",
+        "userName": "root",
+        "password": "wwww",
+        "charset": "utf8mb4"
+      }
+    }
+  },
+  "cache": {
+    "redis": {
+      "default": {
+        "host": "127.0.0.1",
+        "port": 6379,
+        "password": null,
+        "minIdle": 3
+      }
+    }
+  },
+  "mq": {
+    "rabbitMq": {
+      "default": {
+        "host": "127.0.0.1",
+        "port": "5672",
+        "userName": "guest",
+        "password": "123456",
+        "vHost": "/"
+      }
+    }
+  }
+}
