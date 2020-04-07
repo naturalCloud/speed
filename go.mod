@@ -3,6 +3,8 @@ module speed
 go 1.14
 
 require (
+	github.com/brianvoe/gofakeit/v4 v4.3.0
+	github.com/bxcodec/faker/v3 v3.3.0
 	github.com/gin-gonic/gin v1.5.0
 	github.com/go-redis/redis/v7 v7.2.0
 	github.com/go-sql-driver/mysql v1.4.1
