@@ -10,7 +10,7 @@ func main() {
 
 	gin.SetMode(gin.DebugMode)
 	engine := gin.Default()
-	engine.LoadHTMLGlob("resources/*")
+	engine.LoadHTMLGlob("resources/views/*")
 	router.Router(engine) //初始化路由
 
 

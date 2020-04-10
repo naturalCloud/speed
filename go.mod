@@ -16,6 +16,7 @@ require (
 	github.com/tidwall/gjson v1.6.0
 	github.com/tidwall/pretty v1.0.1 // indirect
 	go.uber.org/zap v1.14.0
+	google.golang.org/api v0.3.1
 	google.golang.org/appengine v1.4.0
 	gopkg.in/natefinch/lumberjack.v2 v2.0.0
 
