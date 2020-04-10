@@ -1,4 +1,4 @@
-package main
+package faker
 
 import (
 	"encoding/json"
@@ -10,13 +10,9 @@ import (
 	"strings"
 )
 
-func main() {
-	fmt.Println(MakeEmail())
-	name, _ := MakeName()
-	fmt.Println(name)
-	card, _ := MakeIdentificationCard()
-
-	fmt.Println(card,len(card))
+type Faker struct {
+	//数据路径
+	dataPath string
 }
 
 //手机号段
@@ -84,8 +80,8 @@ var baijiaxing = []string{
 }
 
 //生成手机号
-func MakeMobile() string {
-	mobile := mobileSegment[php2go.Rand(0, len(mobileSegment))-1]
+func (f *Faker) MakeMobile() string {
+	mobile := mobileSegment[php2go.Rand(0, len(mobileSegment)-1)]
 
 	for i := 0; i < 8; i++ {
 		mobile += strconv.Itoa(php2go.Rand(0, 9))
@@ -94,9 +90,15 @@ func MakeMobile() string {
 }
 
 //生成中文名字
-func MakeName() (string, error) {
+func (f *Faker) MakeName() (string, error) {
 
-	namebytes, err := ioutil.ReadFile("resources/data/faker/nameData")
+	var filePath = ""
+	if f.dataPath == "" {
+		filePath = "/resources/data/faker/nameData"
+	} else {
+		filePath = f.dataPath + "nameData"
+	}
+	namebytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return "", errors.New(err.Error())
 	}
@@ -119,13 +121,45 @@ func MakeAddress() {
 }
 
 //生成银行卡号
-func MakeBankCardId() {
+func (f *Faker) MakeBankCardId() string {
+	bankArea := strconv.Itoa(php2go.Rand(1, 800) + 622126)
 
+	for i := 0; i < 12; i++ {
+		bankArea += strconv.Itoa(php2go.Rand(0, 9))
+	}
+
+	areaArr := strings.Split(bankArea, "")
+	lastNum := 0
+	for i, j := len(areaArr)-1, 0; i >= 0; j, i = j+1, i-1 {
+		num, _ := strconv.Atoi(areaArr[i])
+
+		if j%2 == 0 {
+			num *= 2
+			num = int(num/10) + int(num%10)
+		}
+
+		lastNum += num
+	}
+
+	if lastNum%10 == 0 {
+		lastNum = 0
+	} else {
+		lastNum = 10 - lastNum%10
+	}
+
+	return bankArea + strconv.Itoa(lastNum)
 }
 
 //生成身份证号码
-func MakeIdentificationCard() (string, error) {
-	cityIdNumBytes, err := ioutil.ReadFile("resources/data/faker/cityidnumber")
+func (f *Faker) MakeIdentificationCard() (string, error) {
+
+	var filePath = ""
+	if f.dataPath == "" {
+		filePath = "/resources/data/faker/cityidnumber"
+	} else {
+		filePath = f.dataPath + "cityidnumber"
+	}
+	cityIdNumBytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
 		return "", err
 	}
@@ -181,12 +215,12 @@ func MakeIdentificationCard() (string, error) {
 	//身份证号17位系数
 	var xishu = []int{7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2}
 
-	tmpCode := area + strconv.Itoa(year) + monthStr + dayStr + fmt.Sprintf("%03d",xuhao)
-	tmpCodeArr := strings.Split(tmpCode,"")
+	tmpCode := area + strconv.Itoa(year) + monthStr + dayStr + fmt.Sprintf("%03d", xuhao)
+	tmpCodeArr := strings.Split(tmpCode, "")
 
 	var tmpSum int
 
-	for i := 0; i < len(xishu); i ++ {
+	for i := 0; i < len(xishu); i++ {
 		atoi, _ := strconv.Atoi(tmpCodeArr[i])
 		tmpSum += xishu[i] * atoi
 	}
@@ -201,7 +235,7 @@ func MakeIdentificationCard() (string, error) {
 		break
 	case 2:
 		last = 999
-		break;
+		break
 	case 3:
 		last = 9
 		break
@@ -213,16 +247,16 @@ func MakeIdentificationCard() (string, error) {
 		break
 	case 6:
 		last = 6
-		break;
+		break
 	case 7:
 		last = 5
-		break;
+		break
 	case 8:
 		last = 4
-		break;
+		break
 	case 9:
 		last = 3
-		break;
+		break
 	case 10:
 		last = 2
 		break
@@ -230,18 +264,16 @@ func MakeIdentificationCard() (string, error) {
 	lastStr := ""
 	if last >= 999 {
 		lastStr = "X"
-	}else  {
+	} else {
 		lastStr = strconv.Itoa(last)
 	}
 
-
-	return tmpCode + lastStr ,nil
-
+	return tmpCode + lastStr, nil
 
 }
 
 //生成电子邮箱
-func MakeEmail() string {
+func (f *Faker) MakeEmail() string {
 	last := mailLast[(php2go.Rand(0, len(mailLast)-1))]
 	var stra, strd = "", ""
 	alphabetMax := len(alphabet) - 1
@@ -252,4 +284,8 @@ func MakeEmail() string {
 
 	}
 	return stra + strd + last
+}
+
+func NewFaker(path string) *Faker {
+	return &Faker{dataPath: path}
 }
