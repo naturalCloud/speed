@@ -32,10 +32,11 @@ func BenchmarkBankIdB(b *testing.B) {
 	newFaker := faker.NewFaker("/home/zhangshuai/project/go/speed/resources/data/faker/")
 
 	for i := 0; i < b.N; i++ {
-		 newFaker.MakeName()
+		newFaker.MakeName()
 		newFaker.MakeEmail()
 		newFaker.MakeBankCardId()
 		newFaker.MakeIdentificationCard()
+		newFaker.MakeAddress()
 
 	}
 
@@ -57,7 +58,7 @@ func BenchmarkTestc(b *testing.B) {
 	//mobile := mobileSegment[php2go.Rand(0, len(mobileSegment))-1]
 }
 
-func TestAddress(t *testing.T)  {
+func TestAddress(t *testing.T) {
 	newFaker := faker.NewFaker("/home/zhangshuai/project/go/speed/resources/data/faker/")
 	address := newFaker.MakeAddress()
 	fmt.Println(address)
@@ -66,10 +67,30 @@ func TestAddress(t *testing.T)  {
 func BenchmarkAddress(b *testing.B) {
 	newFaker := faker.NewFaker("/home/zhangshuai/project/go/speed/resources/data/faker/")
 
-	for i := 0; i < b.N ; i++ {
+	for i := 0; i < b.N; i++ {
 		address := newFaker.MakeAddress()
 		if address == "" {
 			b.Error("错误")
 		}
 	}
+}
+
+func TestAbc(t *testing.T) {
+
+	newFaker := faker.NewFaker("/home/zhangshuai/project/go/speed/resources/data/faker/")
+
+	for i := 0; i < 50000; i++ {
+		newFaker.MakeAddress()
+
+		go func() {
+			newFaker.MakeAddress()
+
+			newFaker.MakeBankCardId()
+			newFaker.MakeEmail()
+			newFaker.MakeMobile()
+			newFaker.MakeName()
+		}()
+
+	}
+
 }

@@ -1,14 +1,18 @@
 package faker
 
 import (
+	rands "crypto/rand"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/syyongx/php2go"
 	"io/ioutil"
+	"math/big"
+	"math/rand"
 	"speed/app/lib/faker/dataStruct"
 	"strconv"
 	"strings"
+	"time"
 )
 
 type Faker struct {
@@ -18,7 +22,7 @@ type Faker struct {
 	cityData     map[uint8][]dataStruct.City     //市数据
 	countryData  map[uint16][]dataStruct.Country //县级数据
 	townData     map[uint16][]dataStruct.Town    //镇级数据
-
+	rands        *rand.Rand
 }
 
 //手机号段
@@ -87,10 +91,10 @@ var baijiaxing = []string{
 
 //生成手机号
 func (f *Faker) MakeMobile() string {
-	mobile := mobileSegment[php2go.Rand(0, len(mobileSegment)-1)]
+	mobile := mobileSegment[f.rand(0, len(mobileSegment)-1)]
 
 	for i := 0; i < 8; i++ {
-		mobile += strconv.Itoa(php2go.Rand(0, 9))
+		mobile += strconv.Itoa(f.rand(0, 9))
 	}
 	return mobile
 }
@@ -115,8 +119,8 @@ func (f *Faker) MakeName() (string, error) {
 		return "", err
 	}
 
-	xing := baijiaxing[php2go.Rand(0, len(baijiaxing)-1)]
-	name := nameArray[php2go.Rand(0, len(nameArray)-1)]
+	xing := baijiaxing[f.rand(0, len(baijiaxing)-1)]
+	name := nameArray[f.rand(0, len(nameArray)-1)]
 	return xing + name, nil
 
 }
@@ -135,27 +139,27 @@ func (f *Faker) MakeAddress() string {
 		tData       dataStruct.Town
 	)
 
-	pData := f.provinceData[php2go.Rand(0, len(f.provinceData)-1)]
+	pData := f.provinceData[f.rand(0, len(f.provinceData)-1)]
 	pstr = pData.Pv
 
 	if len(f.cityData[pData.Pk])-1 < 0 {
 		cityStr = ""
 	} else {
-		cityData = f.cityData[pData.Pk][php2go.Rand(0, len(f.cityData[pData.Pk])-1)]
+		cityData = f.cityData[pData.Pk][f.rand(0, len(f.cityData[pData.Pk])-1)]
 		cityStr = cityData.Cv
 	}
 
 	if len(f.countryData[cityData.Ck])-1 < 0 {
 		countryStr = ""
 	} else {
-		countryData = f.countryData[cityData.Ck][php2go.Rand(0, len(f.countryData[cityData.Ck])-1)]
+		countryData = f.countryData[cityData.Ck][f.rand(0, len(f.countryData[cityData.Ck])-1)]
 		countryStr = countryData.Cyv
 	}
 
 	if len(f.townData[countryData.Cyk])-1 < 0 {
 		tStr = ""
 	} else {
-		tData = f.townData[countryData.Cyk][php2go.Rand(0, len(f.townData[countryData.Cyk])-1)]
+		tData = f.townData[countryData.Cyk][f.rand(0, len(f.townData[countryData.Cyk])-1)]
 		tStr = tData.Tv
 
 	}
@@ -165,10 +169,10 @@ func (f *Faker) MakeAddress() string {
 
 //生成银行卡号
 func (f *Faker) MakeBankCardId() string {
-	bankArea := strconv.Itoa(php2go.Rand(1, 800) + 622126)
+	bankArea := strconv.Itoa(f.rand(1, 800) + 622126)
 
 	for i := 0; i < 12; i++ {
-		bankArea += strconv.Itoa(php2go.Rand(0, 9))
+		bankArea += strconv.Itoa(f.rand(0, 9))
 	}
 
 	areaArr := strings.Split(bankArea, "")
@@ -213,13 +217,13 @@ func (f *Faker) MakeIdentificationCard() (string, error) {
 		return "", err
 	}
 
-	area := cityIdNums[php2go.Rand(0, len(cityIdNums)-1)]
+	area := cityIdNums[f.rand(0, len(cityIdNums)-1)]
 
 	//生成年
-	year := 1900 + php2go.Rand(50, 110)
+	year := 1900 + f.rand(50, 110)
 
 	//生成月
-	month := php2go.Rand(1, 12)
+	month := f.rand(1, 12)
 	var monthStr string
 	if month < 10 {
 		monthStr = "0" + strconv.Itoa(month)
@@ -242,7 +246,7 @@ func (f *Faker) MakeIdentificationCard() (string, error) {
 	} else {
 		dayMax = 30
 	}
-	day := php2go.Rand(1, dayMax)
+	day := f.rand(1, dayMax)
 
 	//日期
 	var dayStr = ""
@@ -254,7 +258,7 @@ func (f *Faker) MakeIdentificationCard() (string, error) {
 
 	//序号
 
-	xuhao := php2go.Rand(1, 999)
+	xuhao := f.rand(1, 999)
 	//身份证号17位系数
 	var xishu = []int{7, 9, 10, 5, 8, 4, 2, 1, 6, 3, 7, 9, 10, 5, 8, 4, 2}
 
@@ -317,13 +321,13 @@ func (f *Faker) MakeIdentificationCard() (string, error) {
 
 //生成电子邮箱
 func (f *Faker) MakeEmail() string {
-	last := mailLast[(php2go.Rand(0, len(mailLast)-1))]
+	last := mailLast[f.rand(0, len(mailLast)-1)]
 	var stra, strd = "", ""
 	alphabetMax := len(alphabet) - 1
 	digitMax := len(digit) - 1
 	for i := 0; i < 5; i++ {
-		stra += alphabet[php2go.Rand(0, alphabetMax)]
-		strd += digit[php2go.Rand(0, digitMax)]
+		stra += alphabet[f.rand(0, alphabetMax)]
+		strd += digit[f.rand(0, digitMax)]
 
 	}
 	return stra + strd + last
@@ -379,5 +383,17 @@ func (f *Faker) initAddress() error {
 
 }
 func NewFaker(path string) *Faker {
-	return &Faker{dataPath: path}
+	return &Faker{dataPath: path, rands: rand.New(rand.NewSource(time.Now().UnixNano()))}
+}
+
+func (f *Faker) rand(min, max int) int {
+	if min > max {
+		panic("min: min cannot be greater than max")
+	}
+
+	if min == max {
+		return min
+	}
+	n, _ := rands.Int(rands.Reader, big.NewInt(int64(max)))
+	return int(n.Int64())
 }
