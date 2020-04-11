@@ -8,11 +8,9 @@ import (
 	"github.com/syyongx/php2go"
 	"io/ioutil"
 	"math/big"
-	"math/rand"
 	"speed/app/lib/faker/dataStruct"
 	"strconv"
 	"strings"
-	"time"
 )
 
 type Faker struct {
@@ -22,7 +20,6 @@ type Faker struct {
 	cityData     map[uint8][]dataStruct.City     //市数据
 	countryData  map[uint16][]dataStruct.Country //县级数据
 	townData     map[uint16][]dataStruct.Town    //镇级数据
-	rands        *rand.Rand
 }
 
 //手机号段
@@ -383,7 +380,7 @@ func (f *Faker) initAddress() error {
 
 }
 func NewFaker(path string) *Faker {
-	return &Faker{dataPath: path, rands: rand.New(rand.NewSource(time.Now().UnixNano()))}
+	return &Faker{dataPath: path}
 }
 
 func (f *Faker) rand(min, max int) int {

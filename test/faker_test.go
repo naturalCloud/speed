@@ -78,18 +78,18 @@ func BenchmarkAddress(b *testing.B) {
 func TestAbc(t *testing.T) {
 
 	newFaker := faker.NewFaker("/home/zhangshuai/project/go/speed/resources/data/faker/")
+	newFaker.MakeAddress()
 
-	for i := 0; i < 50000; i++ {
-		newFaker.MakeAddress()
+	for i := 0; i < 500000; i++ {
 
-		go func() {
+		go func(newFaker *faker.Faker) {
 			newFaker.MakeAddress()
 
 			newFaker.MakeBankCardId()
 			newFaker.MakeEmail()
 			newFaker.MakeMobile()
 			newFaker.MakeName()
-		}()
+		}(newFaker)
 
 	}
 
