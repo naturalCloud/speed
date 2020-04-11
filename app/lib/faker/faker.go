@@ -6,13 +6,19 @@ import (
 	"fmt"
 	"github.com/syyongx/php2go"
 	"io/ioutil"
+	"speed/app/lib/faker/dataStruct"
 	"strconv"
 	"strings"
 )
 
 type Faker struct {
 	//数据路径
-	dataPath string
+	dataPath     string
+	provinceData []dataStruct.Province           //省数据
+	cityData     map[uint8][]dataStruct.City     //市数据
+	countryData  map[uint16][]dataStruct.Country //县级数据
+	townData     map[uint16][]dataStruct.Town    //镇级数据
+
 }
 
 //手机号段
@@ -116,8 +122,45 @@ func (f *Faker) MakeName() (string, error) {
 }
 
 //随机生成单个全国省市县乡地址
-func MakeAddress() {
+func (f *Faker) MakeAddress() string {
+	f.initAddress()
 
+	var (
+		pstr        = ""
+		cityStr     = ""
+		countryStr  = ""
+		tStr        = ""
+		cityData    dataStruct.City
+		countryData dataStruct.Country
+		tData       dataStruct.Town
+	)
+
+	pData := f.provinceData[php2go.Rand(0, len(f.provinceData)-1)]
+	pstr = pData.Pv
+
+	if len(f.cityData[pData.Pk])-1 < 0 {
+		cityStr = ""
+	} else {
+		cityData = f.cityData[pData.Pk][php2go.Rand(0, len(f.cityData[pData.Pk])-1)]
+		cityStr = cityData.Cv
+	}
+
+	if len(f.countryData[cityData.Ck])-1 < 0 {
+		countryStr = ""
+	} else {
+		countryData = f.countryData[cityData.Ck][php2go.Rand(0, len(f.countryData[cityData.Ck])-1)]
+		countryStr = countryData.Cyv
+	}
+
+	if len(f.townData[countryData.Cyk])-1 < 0 {
+		tStr = ""
+	} else {
+		tData = f.townData[countryData.Cyk][php2go.Rand(0, len(f.townData[countryData.Cyk])-1)]
+		tStr = tData.Tv
+
+	}
+
+	return pstr + cityStr + countryStr + tStr
 }
 
 //生成银行卡号
@@ -286,6 +329,55 @@ func (f *Faker) MakeEmail() string {
 	return stra + strd + last
 }
 
+func (f *Faker) initAddress() error {
+
+	if len(f.provinceData) > 0 {
+		return nil
+	}
+	file, err := ioutil.ReadFile(f.dataPath + "provinceData")
+	if err != nil {
+		return err
+	}
+	f.provinceData = []dataStruct.Province{}
+	_ = json.Unmarshal(file, &f.provinceData)
+
+	readFile, err := ioutil.ReadFile(f.dataPath + "cityData")
+	if err != nil {
+		return err
+	}
+	var city []dataStruct.City
+	_ = json.Unmarshal(readFile, &city)
+
+	f.cityData = map[uint8][]dataStruct.City{}
+
+	for _, value := range city {
+		f.cityData[value.Pk] = append(f.cityData[value.Pk], value)
+	}
+
+	var country []dataStruct.Country
+
+	countryBytes, err := ioutil.ReadFile(f.dataPath + "countrydata")
+	_ = json.Unmarshal(countryBytes, &country)
+
+	f.countryData = map[uint16][]dataStruct.Country{}
+	for _, value := range country {
+		f.countryData[value.Ck] = append(f.countryData[value.Ck], value)
+	}
+
+	var town []dataStruct.Town
+
+	townBytes, err := ioutil.ReadFile(f.dataPath + "townData")
+	if err != nil {
+		return err
+	}
+	_ = json.Unmarshal(townBytes, &town)
+	f.townData = map[uint16][]dataStruct.Town{}
+	for _, value := range town {
+		f.townData[value.Cyk] = append(f.townData[value.Cyk], value)
+	}
+	return nil
+
+}
 func NewFaker(path string) *Faker {
 	return &Faker{dataPath: path}
 }

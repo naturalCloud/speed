@@ -56,3 +56,20 @@ func BenchmarkTestc(b *testing.B) {
 	fmt.Println(i)
 	//mobile := mobileSegment[php2go.Rand(0, len(mobileSegment))-1]
 }
+
+func TestAddress(t *testing.T)  {
+	newFaker := faker.NewFaker("/home/zhangshuai/project/go/speed/resources/data/faker/")
+	address := newFaker.MakeAddress()
+	fmt.Println(address)
+}
+
+func BenchmarkAddress(b *testing.B) {
+	newFaker := faker.NewFaker("/home/zhangshuai/project/go/speed/resources/data/faker/")
+
+	for i := 0; i < b.N ; i++ {
+		address := newFaker.MakeAddress()
+		if address == "" {
+			b.Error("错误")
+		}
+	}
+}
