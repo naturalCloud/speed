@@ -12,6 +12,7 @@ require (
 	github.com/gorilla/websocket v1.4.1
 	github.com/jinzhu/gorm v1.9.11
 	github.com/spf13/viper v1.6.2
+	github.com/stretchr/testify v1.5.1
 	github.com/syyongx/php2go v0.9.4
 	github.com/tidwall/gjson v1.6.0
 	github.com/tidwall/pretty v1.0.1 // indirect
