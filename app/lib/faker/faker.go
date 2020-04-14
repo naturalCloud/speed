@@ -304,41 +304,21 @@ func (f *Faker) MakeIdentificationCard() (string, error) {
 	}
 
 	last := tmpSum % 11
-	switch last {
-	case 0:
-		last = 1
-		break
-	case 1:
-		last = 0
-		break
-	case 2:
-		last = 999
-		break
-	case 3:
-		last = 9
-		break
-	case 4:
-		last = 8
-		break
-	case 5:
-		last = 7
-		break
-	case 6:
-		last = 6
-		break
-	case 7:
-		last = 5
-		break
-	case 8:
-		last = 4
-		break
-	case 9:
-		last = 3
-		break
-	case 10:
-		last = 2
-		break
+	lastArr := []int{
+		0:  1,
+		1:  0,
+		2:  999,
+		3:  9,
+		4:  8,
+		5:  7,
+		6:  6,
+		7:  5,
+		8:  4,
+		9:  3,
+		10: 2,
 	}
+
+	last = lastArr[last]
 	lastStr := ""
 	if last >= 999 {
 		lastStr = "X"
@@ -416,7 +396,7 @@ func (f *Faker) initAddress() error {
 }
 func NewFaker(path string) *Faker {
 	f := &Faker{dataPath: path, isInitAddr: false, isInitNameArr: false, isInitIDArr: false}
-    f.initNameArr()
+	f.initNameArr()
 	f.initIDArray()
 	f.initAddress()
 	return f
