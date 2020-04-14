@@ -410,6 +410,6 @@ func (f *Faker) rand(min, max int) int {
 	if min == max {
 		return min
 	}
-	n, _ := rands.Int(rands.Reader, big.NewInt(int64(max)))
-	return int(n.Int64())
+	n, _ := rands.Int(rands.Reader, big.NewInt(int64(max+1-min)))
+	return int(n.Int64()) + min
 }
