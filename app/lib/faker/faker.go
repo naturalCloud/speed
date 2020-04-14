@@ -105,6 +105,7 @@ func (f *Faker) initNameArr() error {
 	if f.isInitNameArr {
 		return nil
 	}
+
 	var filePath = ""
 	if f.dataPath == "" {
 		filePath = "/resources/data/faker/nameData"
@@ -127,6 +128,12 @@ func (f *Faker) initNameArr() error {
 //生成中文名字
 func (f *Faker) MakeName() (string, error) {
 
+	if !f.isInitNameArr {
+		if err := f.initNameArr(); err != nil {
+			return "", err
+		}
+	}
+
 	xing := baijiaxing[f.rand(0, len(baijiaxing)-1)]
 	name := f.nameArray[f.rand(0, len(f.nameArray)-1)]
 	return xing + name, nil
@@ -134,6 +141,10 @@ func (f *Faker) MakeName() (string, error) {
 
 //随机生成单个全国省市县乡地址
 func (f *Faker) MakeAddress() string {
+
+	if !f.isInitIDArr {
+		f.initAddress()
+	}
 
 	var (
 		pstr        = ""
@@ -230,6 +241,12 @@ func (f *Faker) initIDArray() error {
 
 //生成身份证号码
 func (f *Faker) MakeIdentificationCard() (string, error) {
+
+	if !f.isInitIDArr {
+		if err := f.initIDArray(); err != nil {
+			return "", err
+		}
+	}
 
 	area := f.iDArr[f.rand(0, len(f.iDArr)-1)]
 
@@ -398,8 +415,8 @@ func (f *Faker) initAddress() error {
 
 }
 func NewFaker(path string) *Faker {
-	f := &Faker{dataPath: path, isInitAddr: false, isInitNameArr: false,isInitIDArr: false}
-	f.initNameArr()
+	f := &Faker{dataPath: path, isInitAddr: false, isInitNameArr: false, isInitIDArr: false}
+    f.initNameArr()
 	f.initIDArray()
 	f.initAddress()
 	return f
