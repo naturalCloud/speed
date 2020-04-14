@@ -15,11 +15,16 @@ import (
 
 type Faker struct {
 	//数据路径
-	dataPath     string
-	provinceData []dataStruct.Province           //省数据
-	cityData     map[uint8][]dataStruct.City     //市数据
-	countryData  map[uint16][]dataStruct.Country //县级数据
-	townData     map[uint16][]dataStruct.Town    //镇级数据
+	dataPath      string
+	provinceData  []dataStruct.Province           //省数据
+	cityData      map[uint8][]dataStruct.City     //市数据
+	countryData   map[uint16][]dataStruct.Country //县级数据
+	townData      map[uint16][]dataStruct.Town    //镇级数据
+	nameArray     []string                        //姓名
+	iDArr         []string                        //身份证号段
+	isInitAddr    bool                            //是否初始化了地址
+	isInitNameArr bool                            //是否初始化了姓名
+	isInitIDArr   bool                            //是否初始化身份证号段数组
 }
 
 //手机号段
@@ -96,9 +101,10 @@ func (f *Faker) MakeMobile() string {
 	return mobile
 }
 
-//生成中文名字
-func (f *Faker) MakeName() (string, error) {
-
+func (f *Faker) initNameArr() error {
+	if f.isInitNameArr {
+		return nil
+	}
 	var filePath = ""
 	if f.dataPath == "" {
 		filePath = "/resources/data/faker/nameData"
@@ -107,24 +113,27 @@ func (f *Faker) MakeName() (string, error) {
 	}
 	namebytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		return "", errors.New(err.Error())
+		return errors.New(err.Error())
 	}
 
-	var nameArray []string
-
-	if err = json.Unmarshal(namebytes, &nameArray); err != nil {
-		return "", err
+	if err = json.Unmarshal(namebytes, &f.nameArray); err != nil {
+		return err
 	}
+
+	return nil
+
+}
+
+//生成中文名字
+func (f *Faker) MakeName() (string, error) {
 
 	xing := baijiaxing[f.rand(0, len(baijiaxing)-1)]
-	name := nameArray[f.rand(0, len(nameArray)-1)]
+	name := f.nameArray[f.rand(0, len(f.nameArray)-1)]
 	return xing + name, nil
-
 }
 
 //随机生成单个全国省市县乡地址
 func (f *Faker) MakeAddress() string {
-	f.initAddress()
 
 	var (
 		pstr        = ""
@@ -194,9 +203,11 @@ func (f *Faker) MakeBankCardId() string {
 	return bankArea + strconv.Itoa(lastNum)
 }
 
-//生成身份证号码
-func (f *Faker) MakeIdentificationCard() (string, error) {
+func (f *Faker) initIDArray() error {
 
+	if f.isInitIDArr {
+		return nil
+	}
 	var filePath = ""
 	if f.dataPath == "" {
 		filePath = "/resources/data/faker/cityidnumber"
@@ -205,16 +216,22 @@ func (f *Faker) MakeIdentificationCard() (string, error) {
 	}
 	cityIdNumBytes, err := ioutil.ReadFile(filePath)
 	if err != nil {
-		return "", err
+		return err
 	}
 
-	var cityIdNums []string
-
-	if err := json.Unmarshal(cityIdNumBytes, &cityIdNums); err != nil {
-		return "", err
+	if err := json.Unmarshal(cityIdNumBytes, &f.iDArr); err != nil {
+		return err
 	}
 
-	area := cityIdNums[f.rand(0, len(cityIdNums)-1)]
+	f.isInitIDArr = true
+	return nil
+
+}
+
+//生成身份证号码
+func (f *Faker) MakeIdentificationCard() (string, error) {
+
+	area := f.iDArr[f.rand(0, len(f.iDArr)-1)]
 
 	//生成年
 	year := 1900 + f.rand(50, 110)
@@ -332,7 +349,7 @@ func (f *Faker) MakeEmail() string {
 
 func (f *Faker) initAddress() error {
 
-	if len(f.provinceData) > 0 {
+	if f.isInitAddr {
 		return nil
 	}
 	file, err := ioutil.ReadFile(f.dataPath + "provinceData")
@@ -376,11 +393,16 @@ func (f *Faker) initAddress() error {
 	for _, value := range town {
 		f.townData[value.Cyk] = append(f.townData[value.Cyk], value)
 	}
+	f.isInitAddr = true
 	return nil
 
 }
 func NewFaker(path string) *Faker {
-	return &Faker{dataPath: path}
+	f := &Faker{dataPath: path, isInitAddr: false, isInitNameArr: false,isInitIDArr: false}
+	f.initNameArr()
+	f.initIDArray()
+	f.initAddress()
+	return f
 }
 
 func (f *Faker) rand(min, max int) int {

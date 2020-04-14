@@ -78,7 +78,6 @@ func BenchmarkAddress(b *testing.B) {
 func TestAbc(t *testing.T) {
 
 	newFaker := faker.NewFaker("/home/zhangshuai/project/go/speed/resources/data/faker/")
-	newFaker.MakeAddress()
 
 	for i := 0; i < 500000; i++ {
 
