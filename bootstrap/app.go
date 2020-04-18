@@ -52,7 +52,7 @@ func initConfig() {
 	Config.SetConfigFile(".config.json")
 	err := Config.ReadInConfig()
 	if err != nil {
-		panic("初始配置化失败")
+		panic(err)
 	}
 }
 
@@ -123,6 +123,8 @@ func initDb() {
 	if Config.GetString("appEnv") == "prod" {
 		db.SetLogger(&log.SqlLog{})
 	}
+
+	db.DB().SetMaxOpenConns(50)
 	Db = db
 	log.Info("init DB connect success")
 

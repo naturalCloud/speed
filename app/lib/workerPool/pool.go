@@ -1,7 +1,7 @@
 package workerPool
 
 type Pool struct {
-	ExternalChain chan *Task
+	ExternalChain chan *Task //对外的任务传送管道
 	taskChain     chan *Task //消息管道
 	workNum       int        //协程数量
 }
