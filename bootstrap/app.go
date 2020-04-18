@@ -7,6 +7,8 @@ import (
 	"github.com/spf13/viper"
 	"github.com/syyongx/php2go"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
+	"gopkg.in/natefinch/lumberjack.v2"
 	"os"
 	"path/filepath"
 	"reflect"
@@ -28,11 +30,13 @@ var (
 
 func init() {
 
+	initConfig()
+	initAppName()
+
+	initAppPath()
 	initLog()
 
-	initConfig()
-	initAppPath()
-	initAppName()
+
 
 	initDb()
 	initRedis()
@@ -44,11 +48,8 @@ func initConfig() {
 	Config.SetConfigFile(".config.json")
 	err := Config.ReadInConfig()
 	if err != nil {
-		log.Panic(err.Error())
+		panic("初始配置化失败")
 	}
-
-	log.Info("config init success")
-
 }
 
 func initAppPath() {
@@ -124,6 +125,53 @@ func initDb() {
 }
 
 func initLog() {
-	Log0 = log.InitLog()
+	Log0 = InitLog()
 	Log = Log0.Sugar()
+}
+
+func InitLog() *zap.Logger {
+
+	fileName := ""
+	if Config.Get("appEnv") == "prod" {
+		fileName = AppPath + "/storage/logs/zap.log"
+
+	}else {
+		fileName = "storage/logs/zap.log"
+	}
+
+
+	level := getLoggerLevel("info")
+	syncWriter := zapcore.AddSync(&lumberjack.Logger{
+		Filename:  fileName,
+		MaxSize:   1 << 30, //1G
+		LocalTime: true,
+		Compress:  true,
+	})
+	encoder := zap.NewProductionEncoderConfig()
+	encoder.EncodeTime = func(i time.Time, encoder zapcore.PrimitiveArrayEncoder) {
+		encoder.AppendString(i.Format("2006-01-02 15:04:05.000"))
+	}
+	core := zapcore.NewCore(zapcore.NewJSONEncoder(encoder), syncWriter, zap.NewAtomicLevelAt(level))
+
+	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1), zap.AddStacktrace(log.Stack{}))
+	log.Log = logger.Sugar()
+	return logger
+	//Log1 = logger //嵌套结构化
+}
+
+func getLoggerLevel(lvl string) zapcore.Level {
+	if level, ok := levelMap[lvl]; ok {
+		return level
+	}
+	return zapcore.InfoLevel
+}
+
+var levelMap = map[string]zapcore.Level{
+	"debug":  zapcore.DebugLevel,
+	"info":   zapcore.InfoLevel,
+	"warn":   zapcore.WarnLevel,
+	"error":  zapcore.ErrorLevel,
+	"dpanic": zapcore.DPanicLevel,
+	"panic":  zapcore.PanicLevel,
+	"fatal":  zapcore.FatalLevel,
 }

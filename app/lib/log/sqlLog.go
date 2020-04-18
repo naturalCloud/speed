@@ -126,3 +126,8 @@ func (log *SqlLog) Print(values ...interface{}) {
 		//})
 	}
 }
+
+func NewTraceSqlLog(ctx *gin.Context) *SqlLog {
+
+	return &SqlLog{ctx: ctx}
+}

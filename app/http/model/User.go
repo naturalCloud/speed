@@ -2,7 +2,7 @@ package model
 
 import app "speed/bootstrap"
 
-type User struct {
+type Users struct {
 	ID          int    `gorm:"primary_key;column:Id;type:int(10) unsigned;not null"` //	主键
 	Openid      string `gorm:"unique;column:Openid;type:varchar(55);not null"`       //	微信openid
 	NickName    string `gorm:"column:NickName;type:varchar(64);not null"`            //	昵称
@@ -15,12 +15,13 @@ type User struct {
 	Email       string `gorm:"column:Email;type:varchar(64);not null"`               //	电子邮箱
 }
 
-func (User) TableName() string {
+func (U Users) TableName() string {
 	return "user"
 }
 
-func (User) GetMore() []User {
-	var user []User
+
+func (Users) GetMore() []Users {
+	var user []Users
 	app.Db.Where("Id >= ?", 1).Find(&user)
 
 	return user

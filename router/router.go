@@ -7,6 +7,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"net/http"
+	"speed/app/http/controllers"
 	"speed/app/lib/log"
 	"speed/app/middleware"
 	"time"
@@ -23,6 +24,10 @@ func Router(c *gin.Engine) {
 		ctx.String(http.StatusOK, "hello word!")
 
 	})
+
+	{
+		c.GET("/index",controllers.HelloC.Index)
+	}
 	{
 		c.GET("/first", func(context *gin.Context) {
 			context.HTML(http.StatusOK,"Firstroom.html",gin.H{"wsport":wsport})

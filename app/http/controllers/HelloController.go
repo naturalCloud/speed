@@ -15,7 +15,7 @@ var HelloC = &HelloController{}
 
 func (h *HelloController) Index(ctx *gin.Context) {
 
-	fmt.Println(model.User{}.GetMore())
+	fmt.Println(model.Users{}.GetMore())
 	log.WithCtx(ctx).Info("hello word")
 	h.success(ctx, map[string]interface{}{"hello": "hello word"})
 }
