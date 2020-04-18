@@ -26,6 +26,7 @@ var (
 	//var Log1 *zap.Logger
 	AppName string
 	AppPath string
+	AppEnv  string
 )
 
 func init() {
@@ -34,12 +35,15 @@ func init() {
 	initAppName()
 
 	initAppPath()
+	initAppEnv()
 	initLog()
-
-
 
 	initDb()
 	initRedis()
+}
+
+func initAppEnv() {
+	AppEnv = Config.GetString("appEnv")
 }
 
 func initConfig() {
@@ -135,23 +139,30 @@ func InitLog() *zap.Logger {
 	if Config.Get("appEnv") == "prod" {
 		fileName = AppPath + "/storage/logs/zap.log"
 
-	}else {
+	} else {
 		fileName = "storage/logs/zap.log"
 	}
 
-
 	level := getLoggerLevel("info")
-	syncWriter := zapcore.AddSync(&lumberjack.Logger{
-		Filename:  fileName,
-		MaxSize:   1 << 30, //1G
-		LocalTime: true,
-		Compress:  true,
-	})
+	var write zapcore.WriteSyncer
+
+	if AppEnv == "prod" {
+		write = zapcore.AddSync(&lumberjack.Logger{
+			Filename:  fileName,
+			MaxSize:   1 << 30, //1G
+			LocalTime: true,
+			Compress:  true,
+		})
+	} else {
+		write = os.Stdout
+	}
+
 	encoder := zap.NewProductionEncoderConfig()
 	encoder.EncodeTime = func(i time.Time, encoder zapcore.PrimitiveArrayEncoder) {
 		encoder.AppendString(i.Format("2006-01-02 15:04:05.000"))
 	}
-	core := zapcore.NewCore(zapcore.NewJSONEncoder(encoder), syncWriter, zap.NewAtomicLevelAt(level))
+
+	core := zapcore.NewCore(zapcore.NewJSONEncoder(encoder), write, zap.NewAtomicLevelAt(level))
 
 	logger := zap.New(core, zap.AddCaller(), zap.AddCallerSkip(1), zap.AddStacktrace(log.Stack{}))
 	log.Log = logger.Sugar()
