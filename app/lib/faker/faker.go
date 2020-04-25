@@ -142,7 +142,7 @@ func (f *Faker) MakeName() (string, error) {
 //随机生成单个全国省市县乡地址
 func (f *Faker) MakeAddress() string {
 
-	if !f.isInitIDArr {
+	if !f.isInitAddr {
 		f.initAddress()
 	}
 
