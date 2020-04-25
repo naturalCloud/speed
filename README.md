@@ -18,4 +18,14 @@
 	github.com/tidwall/pretty v1.0.1 // indirect
 	go.uber.org/zap v1.14.0
 ```
+
+### todo
+1. 数据库日志traceId追踪
+2. rabbitMq lib 封装
+3. 邮件功能
+4. 框架平滑重启
+5. 异常处理封装
+6. .....
+
+
   
