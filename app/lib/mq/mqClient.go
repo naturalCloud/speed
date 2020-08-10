@@ -9,19 +9,12 @@ type MqClient struct {
 	block        chan amqp.Blocking
 	channelClose chan *amqp.Error
 	clientClose  chan *amqp.Error
+}
 
+func (m *MqClient) Push() {
 
 }
 
-func (m *MqClient) Push()  {
-
-}
-
-
-
-
-
-
-func NewClient() *MqClient  {
-	return  &MqClient{}
+func NewClient() *MqClient {
+	return &MqClient{}
 }

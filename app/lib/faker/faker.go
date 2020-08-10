@@ -34,13 +34,18 @@ var mobileSegment = []string{
 	"175", "135", "136", "137", "138", "139", "150", "151", "152",
 	"157", "158", "159", "182", "183", "184", "187", "147", "178",
 }
-var mailLast = []string{"@126.com",
+var mailLast = []string{
+	"@126.com",
 	"@163.com", "@sina.com",
 	"@21cn.com", "@sohu.com",
 	"@yahoo.com.cn", "@tom.com",
 	"@qq.com", "@etang.com",
 	"@eyou.com", "@56.com",
-	"@hotmail.com", "@msn.com", "@yahoo.com", "@gmail.com", "@aim.com", "@aol.com", "@mail.com", "@walla.com", "@inbox.com", "@live.com"}
+	"@hotmail.com", "@msn.com",
+	"@yahoo.com", "@gmail.com",
+	"@aim.com", "@aol.com",
+	"@mail.com", "@walla.com",
+	"@inbox.com", "@live.com"}
 
 var alphabet = []string{"a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", "l", "m", "n", "o", "p", "q", "r", "s", "t", "u", "v", "w", "x", "y", "z"}
 

@@ -21,7 +21,6 @@ type Country struct {
 }
 
 //镇级别数据
-
 type Town struct {
 	Cyk uint16
 	Tk  uint16 //镇级别码
